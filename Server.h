@@ -22,23 +22,23 @@ const int BUFFER_SIZE = 64;
 
 class Server
 {
-public:
-	Server(int port):m_port(port){};
-	~Server();
-	void init(){};
-	void eventListen();
-	void mainLoop();
-	int getPort();
-	void addfd(int epoll_fd, int new_fd, bool one_shot = false);
-	int setnonblocking(int fd);
+    public:
+        Server(int port):m_port(port){};
+        ~Server();
+        void init(){};
+        void eventListen();
+        void mainLoop();
+        int getPort();
+        void addfd(int epoll_fd, int new_fd, bool one_shot = false);
+        int setnonblocking(int fd);
 
 
-private:
-	int m_listenfd;
-	int m_OPT_LINGER = 0;
-	int m_epoll_fd;
-	int m_port;
-	epoll_event m_events[MAX_EVENT_NUMBER];
+    private:
+        int m_listenfd;
+        int m_OPT_LINGER = 0;
+        int m_epoll_fd;
+        int m_port;
+        epoll_event m_events[MAX_EVENT_NUMBER];
 
 };
 
