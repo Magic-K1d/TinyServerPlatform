@@ -20,32 +20,28 @@ class Event{
             WRITE,
             CLOSE,
             ERROR
-        };        
+        };
 
-
-        Event(int fd):m_fd(fd), m_events(EPOLLRDHUP) {};
+        Event(int fd, EVENT_TYPE event_type);
         ~Event(){};
 
         void HandleEvent();
         
         void EnableReadEvents() { m_events |= (EPOLLIN | EPOLLPRI); }
         void EnableWriteEvents() { m_events |= EPOLLOUT; }
-        void SetCallBack(Callback& cb,EVENT_TYPE type);
-
-        void HendleEvent(EVENT_TYPE type);
-
+        void SetCallBack(Callback& cb);
 
         int GetFD() const{ return m_fd;}
         int GetEvents() const{ return m_events;}
 
-
     private:
         const int m_fd;
         int m_events;
-        Callback m_read_callback;       
-        Callback m_write_callback;       
-        Callback m_error_callback;       
-        Callback m_close_callback;       
+        EVENT_TYPE m_event_type;
+        Callback m_read_callback;
+        Callback m_write_callback;
+        Callback m_error_callback;
+        Callback m_close_callback;
 
 };
 

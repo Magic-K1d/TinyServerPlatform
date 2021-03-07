@@ -1,5 +1,4 @@
 #include "Server.h"
-#include <iostream>
 
 
 Server::~Server(){
@@ -98,15 +97,3 @@ int Server::getPort(){
 }
 
 
-int main(int argc, char const *argv[])
-{
-    // std::string ip = "0.0.0.0";
-    int port = 2222;
-    Server server(port);
-
-    std::cout << server.getPort() << std::endl;
-
-    server.eventListen();
-    server.mainLoop();
-    return 0;
-}
