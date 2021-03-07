@@ -7,7 +7,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include<sys/epoll.h>
+// #include<sys/epoll.h>
 #include<functional>
 
 
@@ -27,16 +27,17 @@ class Event{
 
         void HandleEvent();
         
-        void EnableReadEvents() { m_events |= (EPOLLIN | EPOLLPRI); }
-        void EnableWriteEvents() { m_events |= EPOLLOUT; }
+        // void EnableReadEvents() { m_events |= (EPOLLIN | EPOLLPRI); }
+        // void EnableWriteEvents() { m_events |= EPOLLOUT; }
         void SetCallBack(Callback& cb);
 
-        int GetFD() const{ return m_fd;}
-        int GetEvents() const{ return m_events;}
+        int getFD() const{ return m_fd;}
+        // int getEvents() const{ return m_events;}
+        EVENT_TYPE getEventType(){ return m_event_type;}
 
     private:
         const int m_fd;
-        int m_events;
+        // int m_events;
         EVENT_TYPE m_event_type;
         Callback m_read_callback;
         Callback m_write_callback;

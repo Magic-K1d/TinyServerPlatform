@@ -11,12 +11,12 @@
 Threadpool* Threadpool::m_threadpool = new Threadpool(8);
 
 Threadpool::Threadpool(int thread_num) : m_mutex(), m_cond_v(), m_thread_num(thread_num), m_started(false){
-    std::cout << "thread created" << std::endl;    
+    std::cout << std::this_thread::get_id()  << " :thread created" << std::endl;    
 }
 
 
 Threadpool::~Threadpool(){
-    // m_started = false;
+    m_started = false;
     for(int i = 0; i < m_thread_num; ++i){
         m_threads[i]->join();
     }
@@ -47,14 +47,18 @@ void Threadpool:: addTask( Task t, PRIORITY p){
 }
 
 void Threadpool::mainLoop(){
+    std::cout << std::this_thread::get_id() << std::endl;
     while(m_started){
-        std::unique_lock<std::mutex> lock(m_mutex);
-        if(m_task_queue.empty()){
-            m_cond_v.wait( lock);
-        }
+        
         Task t;
-        t = m_task_queue.top().second;
-        m_task_queue.pop();
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            if(m_task_queue.empty()){
+                m_cond_v.wait( lock);
+            }
+            t = m_task_queue.top().second;
+            m_task_queue.pop();
+        }
         if(t) t();
     
     }

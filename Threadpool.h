@@ -20,7 +20,7 @@ class Threadpool{
     public:
         ~Threadpool();
         static Threadpool* get_instence();
-        enum PRIORITY{ L0, L1, L2};
+        enum PRIORITY{ L0 = 1, L1, L2, L3};
         typedef std::function<void()> Task;
         typedef std::pair<PRIORITY, Task> PriorityTask;
         struct PriorityCmp{

@@ -16,30 +16,32 @@
 #include <iostream>
 
 #include "Utils.h"
+#include "Epoller.h"
+#include "Event.h"
 
 const int MAX_FD = 65536;           //最大文件描述符
-const int MAX_EVENT_NUMBER = 10000; //最大事件数
+// const int MAX_EVENT_NUMBER = 10000; //最大事件数
 const int BUFFER_SIZE = 64;
 
 class Server
 {
     public:
-        Server(int port):m_port(port){};
+        Server(int port);
         ~Server();
         void init(){};
         void eventListen();
         void mainLoop();
         int getPort();
-        void addfd(int epoll_fd, int new_fd, bool one_shot = false);
-        int setnonblocking(int fd);
 
 
     private:
         int m_listenfd;
         int m_OPT_LINGER = 0;
-        int m_epoll_fd;
+        // int m_epoll_fd;
+        Epoller* m_epoller;
         int m_port;
-        epoll_event m_events[MAX_EVENT_NUMBER];
+        // epoll_event m_events[MAX_EVENT_NUMBER];
+        Event* listen_event;
 
 };
 

@@ -1,9 +1,12 @@
 #include "Server.h"
 
+Server::Server(int port):m_port(port){
+    m_epoller = Epoller::getInstance();
+};
 
 Server::~Server(){
     close( m_listenfd );
-    close( m_epoll_fd );
+    // close( m_epoll_fd );
 }
 
 void Server::eventListen(){
@@ -39,10 +42,12 @@ void Server::eventListen(){
     struct sockaddr_in client_address;
     socklen_t client_addrlength = sizeof( client_address );
 
-    m_epoll_fd = epoll_create(5);
-    assert(m_epoll_fd != -1);
-
-    Utils::addfd(m_epoll_fd, m_listenfd, false, true);
+    // m_epoll_fd = epoll_create(5);
+    // assert(m_epoll_fd != -1);
+    listen_event = new Event(m_listenfd, Event::READ);
+    m_epoller->addEvent( listen_event, true, true);
+    
+    // Utils::addfd(m_epoll_fd, m_listenfd, false, true);
 
 
 }
@@ -50,45 +55,59 @@ void Server::eventListen(){
 void Server::mainLoop(){
     bool stop_server = false;
     char buf[ BUFFER_SIZE ];
-    while (!stop_server)
-    {
-        int number = epoll_wait(m_epoll_fd, m_events, MAX_EVENT_NUMBER, -1);
-
-        if (number < 0 && errno != EINTR)
-        {
-            std::cout << "epoll failure" << std::endl;
-            break;
-        }
-
-        for (int i = 0; i < number; i++)
-        {
-            int sockfd = m_events[i].data.fd;
-
-            //处理新到的客户连接
-            if (sockfd == m_listenfd)
-            {
-                struct sockaddr_in client_address;
-                socklen_t client_addrlength = sizeof( client_address );
-                int connfd= accept( m_listenfd, ( struct sockaddr*) &client_address, &client_addrlength);
-                assert( connfd != -1);
-                Utils::addfd(m_epoll_fd, connfd, false, true);
-                std::cout << "get connected from fd:" << connfd <<  std::endl;
-            }
-            else if(m_events[i].events & EPOLLIN){
-                int ret = recv( sockfd, buf, BUFFER_SIZE-1, 0 );
-                if(ret <= 0){
-                    std::cout << "nodata" << std::endl;
-                    break;
-                }
-                else 
-                    std::cout << "get " << ret << " data : " << buf << " from " << sockfd << std::endl;
-                if (buf == "stop")
-                {
-                    stop_server = true;
-                }
-            }
-        }
+    while(!stop_server){
+        auto events = m_epoller->wait();
     }
+
+
+
+
+
+
+
+
+
+
+
+    // while (!stop_server)
+    // {
+    //     int number = epoll_wait(m_epoll_fd, m_events, MAX_EVENT_NUMBER, -1);
+
+    //     if (number < 0 && errno != EINTR)
+    //     {
+    //         std::cout << "epoll failure" << std::endl;
+    //         break;
+    //     }
+
+    //     for (int i = 0; i < number; i++)
+    //     {
+    //         int sockfd = m_events[i].data.fd;
+
+    //         //处理新到的客户连接
+    //         if (sockfd == m_listenfd)
+    //         {
+    //             struct sockaddr_in client_address;
+    //             socklen_t client_addrlength = sizeof( client_address );
+    //             int connfd= accept( m_listenfd, ( struct sockaddr*) &client_address, &client_addrlength);
+    //             assert( connfd != -1);
+    //             Utils::addfd(m_epoll_fd, connfd, false, true);
+    //             std::cout << "get connected from fd:" << connfd <<  std::endl;
+    //         }
+    //         else if(m_events[i].events & EPOLLIN){
+    //             int ret = recv( sockfd, buf, BUFFER_SIZE-1, 0 );
+    //             if(ret <= 0){
+    //                 std::cout << "nodata" << std::endl;
+    //                 break;
+    //             }
+    //             else 
+    //                 std::cout << "get " << ret << " data : " << buf << " from " << sockfd << std::endl;
+    //             if (buf == "stop")
+    //             {
+    //                 stop_server = true;
+    //             }
+    //         }
+    //     }
+    // }
 
 }
 

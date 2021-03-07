@@ -8,16 +8,29 @@
 #define EPOLLER_H
 
 
-#include<sys/epoll.h>
+#include <sys/epoll.h>
+#include <vector>
+#include <unordered_map>
+#include "Event.h"
+#include "Utils.h"
 
 class Epoller{
     public:
-        Epoller();
-        ~Epoller();
+        // typedef std::vector<Event*> Events; 
+        typedef std::unordered_map<int, Event*> EventMap;
+
+        static Epoller* getInstance();
+        ~Epoller(){ close(m_epoll_fd);};
+        void addEvent(Event* e, bool one_shot, bool isET); 
+        std::vector<Event*> wait();
+ 
 
     private:
+        static Epoller* m_epoller;
+        Epoller();
         int m_epoll_fd;
-
+        EventMap m_event_fd_map;
+        
 };
 
 

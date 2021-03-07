@@ -10,15 +10,15 @@
 
 Event::Event(int fd, EVENT_TYPE event_type):
 m_fd(fd), 
-m_events(EPOLLRDHUP), 
+// m_events(EPOLLRDHUP), 
 m_event_type(event_type)
 {
-    if( event_type == READ){
-        EnableReadEvents();
-    } 
-    else if( event_type == WRITE){
-        EnableWriteEvents();
-    }
+    // if( event_type == READ){
+    //     EnableReadEvents();
+    // } 
+    // else if( event_type == WRITE){
+    //     EnableWriteEvents();
+    // }
 }
 
 void Event::HandleEvent(){
