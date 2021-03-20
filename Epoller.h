@@ -11,18 +11,24 @@
 #include <sys/epoll.h>
 #include <vector>
 #include <unordered_map>
+#include <memory>
+#include <iostream>
+
 #include "Event.h"
 #include "Utils.h"
+
+const int EVENT_NUM = 65535;
 
 class Epoller{
     public:
         // typedef std::vector<Event*> Events; 
-        typedef std::unordered_map<int, Event*> EventMap;
+        using EventMap = std::unordered_map<int, std::shared_ptr<Event>>;
 
-        static Epoller* getInstance();
+        static Epoller* GetInstance();
         ~Epoller(){ close(m_epoll_fd);};
-        void addEvent(Event* e, bool one_shot, bool isET); 
-        std::vector<Event*> wait();
+        void AddEvent(std::shared_ptr<Event> e, bool one_shot = false, bool isET = true); 
+        void DelEvent(std::shared_ptr<Event> e);
+        std::vector<std::shared_ptr<Event>> Wait();
  
 
     private:
@@ -30,7 +36,8 @@ class Epoller{
         Epoller();
         int m_epoll_fd;
         EventMap m_event_fd_map;
-        
+        std::vector<epoll_event> active_event;
+
 };
 
 

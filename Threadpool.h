@@ -19,21 +19,23 @@
 class Threadpool{
     public:
         ~Threadpool();
-        static Threadpool* get_instence();
+        static Threadpool* GetInstance();
         enum PRIORITY{ L0 = 1, L1, L2, L3};
-        typedef std::function<void()> Task;
-        typedef std::pair<PRIORITY, Task> PriorityTask;
+        using Task = std::function<void()>;
+        using PriorityTask = std::pair<PRIORITY, Task>;
+ 
         struct PriorityCmp{
             bool operator()(const Threadpool::PriorityTask p1, const Threadpool::PriorityTask p2){
                 return p1.first > p2.first;
             }
         };
-        typedef std::priority_queue<PriorityTask, std::vector<PriorityTask>, PriorityCmp> Task_queue;
-        typedef std::vector<std::thread*> Threads;
 
-        void addTask( Task t, PRIORITY p);
-        void mainLoop();
-        void start();
+       using Task_queue = std::priority_queue<PriorityTask, std::vector<PriorityTask>, PriorityCmp>;
+        using Threads = std::vector<std::thread*>;
+
+        void AddTask( Task t, PRIORITY p = L3);
+        void MainLoop();
+        void Start();
 
 
     private:

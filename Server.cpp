@@ -1,7 +1,8 @@
 #include "Server.h"
 
 Server::Server(int port):m_port(port){
-    m_epoller = Epoller::getInstance();
+    m_epoller = Epoller::GetInstance();
+    m_threadpool = Threadpool::GetInstance();
 };
 
 Server::~Server(){
@@ -9,7 +10,7 @@ Server::~Server(){
     // close( m_epoll_fd );
 }
 
-void Server::eventListen(){
+void Server::EventListen(){
 
     m_listenfd = socket(PF_INET, SOCK_STREAM, 0);
     assert(m_listenfd >= 0);
@@ -39,30 +40,43 @@ void Server::eventListen(){
     ret = listen( m_listenfd, 5);
     assert( ret != -1);
 
-    struct sockaddr_in client_address;
-    socklen_t client_addrlength = sizeof( client_address );
+    // struct sockaddr_in client_address;
+    // socklen_t client_addrlength = sizeof( client_address );
 
     // m_epoll_fd = epoll_create(5);
     // assert(m_epoll_fd != -1);
-    listen_event = new Event(m_listenfd, Event::READ);
-    m_epoller->addEvent( listen_event, true, true);
+    listen_event = std::make_shared<Event>(m_listenfd, Event::READ);
+    listen_event->SetCallBack(std::bind(&Server::HandleNewConnection, this));
+    m_epoller->AddEvent(listen_event);
     
     // Utils::addfd(m_epoll_fd, m_listenfd, false, true);
 
 
 }
 
-void Server::mainLoop(){
+void Server::HandleNewConnection(){
+    std::cout << "NewConnection" << std::endl;
+    struct sockaddr_in client_address;
+    socklen_t client_addrlength = sizeof( client_address );
+    int connfd = accept4(m_listenfd, (struct sockaddr*)&client_address, &client_addrlength, SOCK_NONBLOCK | SOCK_CLOEXEC);
+    assert( connfd != -1);   
+    std::shared_ptr<Connection> new_connection( new Connection(m_epoller, client_address, connfd));
+    new_connection->SetMessageCB(m_message_cb);
+    // m_epoller->AddEvent(new_connection->conn_event);
+    new_connection->Register();
+}
+
+
+void Server::MainLoop(){
     bool stop_server = false;
-    char buf[ BUFFER_SIZE ];
+    m_threadpool->Start();
     while(!stop_server){
-        auto events = m_epoller->wait();
+        auto events = m_epoller->Wait();
+        for(auto& e : events){
+            std::cout << "Event!!" << std::endl;
+            m_threadpool->AddTask(std::bind(&Event::HandleEvent, e));
+        }
     }
-
-
-
-
-
 
 
 
@@ -109,10 +123,6 @@ void Server::mainLoop(){
     //     }
     // }
 
-}
-
-int Server::getPort(){
-    return this->m_port;
 }
 
 

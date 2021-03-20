@@ -29,11 +29,11 @@ class Event{
         
         // void EnableReadEvents() { m_events |= (EPOLLIN | EPOLLPRI); }
         // void EnableWriteEvents() { m_events |= EPOLLOUT; }
-        void SetCallBack(Callback& cb);
+        void SetCallBack(Callback&& cb);
 
-        int getFD() const{ return m_fd;}
+        const int GetFD() const{ return m_fd;}
         // int getEvents() const{ return m_events;}
-        EVENT_TYPE getEventType(){ return m_event_type;}
+        EVENT_TYPE GetEventType(){ return m_event_type;}
 
     private:
         const int m_fd;

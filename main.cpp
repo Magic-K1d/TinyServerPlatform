@@ -21,19 +21,25 @@ void show1(int i){
     std::this_thread::sleep_for(std::chrono::milliseconds(100));    
 }
 
+void Message(const std::shared_ptr<Connection>& conn, char* buf, int size)
+{
+    std::cout << "OnMessage" << std::endl;
+    std::cout << buf << std::endl;
+}
+
+
 
 void thread_pool_test(){
-    auto a = Threadpool::get_instence(); 
-    a->start();
+    auto a = Threadpool::GetInstance(); 
+    a->Start();
     // std::this_thread::sleep_for(std::chrono::seconds(3));    
     for(int i = 0; i < 1000; ++i)
-        a->addTask(std::bind(show, i), Threadpool::L3);
+        a->AddTask(std::bind(show, i), Threadpool::L3);
     std::this_thread::sleep_for(std::chrono::seconds(1));
     for(int i = 0; i < 10; ++i)
-        a->addTask(std::bind(show1, i), Threadpool::L1);
+        a->AddTask(std::bind(show1, i), Threadpool::L1);
     std::this_thread::sleep_for(std::chrono::seconds(10));    
 
-    delete a;
     // while(1){}
 }
 
@@ -43,16 +49,17 @@ void server_test(){
     int port = 2222;
     Server server(port);
 
-    std::cout << server.getPort() << std::endl;
+    std::cout << "Start with port:"  << server.GetPort() << std::endl;
 
-    server.eventListen();
-    server.mainLoop();
+    server.EventListen();
+    server.SetMessageCB(Message);
+    server.MainLoop();
 }
  
-
 int main(int argc, char const *argv[])
 {
-    thread_pool_test();
-   std::cout << "main" << std::endl;
+    // thread_pool_test();
+    server_test();
+    std::cout << "main" << std::endl;
     return 0;
 }

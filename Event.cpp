@@ -37,7 +37,7 @@ void Event::HandleEvent(){
     }
 }
 
-void Event::SetCallBack(Callback& cb){
+void Event::SetCallBack(Callback&& cb){
     if( m_event_type == CLOSE) {
         m_close_callback = cb;
     }

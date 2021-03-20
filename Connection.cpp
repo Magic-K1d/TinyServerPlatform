@@ -10,3 +10,30 @@
 
 
 
+Connection::Connection(Epoller* epoller, struct sockaddr_in addr, int fd) : 
+	m_addr(addr), 
+	m_fd(fd),
+	conn_event(new Event(fd, Event::READ)),
+    m_epoller(epoller)
+{
+}
+
+void Connection::HandleRead(){
+	
+	char buf[ BUFFER_SIZE ];
+	int ret = recv( m_fd, buf, BUFFER_SIZE-1, 0 );
+
+	if (ret >= 0)
+	{
+		if (message_cb)
+		{
+			message_cb(shared_from_this(), buf, ret);
+            // shared_from_this()
+		}
+	}
+}
+
+void Connection::Register(){
+	conn_event->SetCallBack(std::bind(&Connection::HandleRead , shared_from_this()));
+    m_epoller->AddEvent(conn_event);
+}

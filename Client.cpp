@@ -1,6 +1,23 @@
 #include <iostream>
 #include "Client.h"
 
+void addfd(int epollfd, int fd, bool one_shot, bool isET)
+{
+    epoll_event event;
+    event.data.fd = fd;
+
+    if (isET)
+        event.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
+    else
+        event.events = EPOLLIN | EPOLLRDHUP;
+
+    if (one_shot)
+        event.events |= EPOLLONESHOT;
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event);
+    Utils::setnonblocking(fd);
+}
+
+
 
 Client::Client(std::string name):m_name(name){
     std::cout << "My name is :" << name << std::endl;
@@ -39,19 +56,18 @@ int Client::init(){
         return 1;
     }
 
+    std::cout << "connection success" << std::endl;
     m_epoll_fd = epoll_create(MAX_EVENT_NUMBER);
     assert( m_epoll_fd != -1 );
 
-    Utils::addfd(m_epoll_fd, m_sockfd, false, false);
-    Utils::addfd(m_epoll_fd, 0, false, false);
+    addfd(m_epoll_fd, m_sockfd, false, false);
+    addfd(m_epoll_fd, 0, false, false);
 
     ret = send(m_sockfd, m_name.c_str(), sizeof m_name.c_str(), 0);
+    std::cout << "send mss" << std::endl;
     assert( ret != -1 );
     return 0;
 }
-
-
-
 
 
 int main(int argc, char const *argv[])
